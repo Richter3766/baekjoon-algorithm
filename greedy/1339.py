@@ -1,6 +1,5 @@
 import sys
-from collections import Counter
-
+# 간소화 버전(불필요 로직 삭제)
 def calculateWeightOfWords(wordList):
     weightDict = dict()
     for word in wordList:
@@ -15,28 +14,19 @@ def calculateWeightOfWords(wordList):
     return sortedWeightDict
 
 
-def convertWeightToNumber(weightDict):
+def getResult(weightDict):
+    result = 0
     num = 9
     for key in weightDict.keys():
-        weightDict[key] = num
+        result += weightDict[key] * num
         num -= 1
-    return weightDict
-
-
-def convertWordToNumber(wordList, weightDict):
-    numList = []
-    for i in range(len(wordList)):
-        for j in range(len((wordList[i]))):
-            wordList[i][j] = weightDict[wordList[i][j]]
-        numList.append(int(''.join(map(str, wordList[i]))))
-    return numList
+    return result
 
 
 n = int(sys.stdin.readline())
 wordList = [list(sys.stdin.readline().strip()) for i in range(n)]
 
 weightDict = calculateWeightOfWords(wordList)
-weightDict = convertWeightToNumber(weightDict)
-numList = convertWordToNumber(wordList, weightDict)
+result = getResult(weightDict)
 
-print(sum(numList))
+print(result)
