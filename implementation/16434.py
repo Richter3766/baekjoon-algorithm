@@ -1,56 +1,48 @@
 import sys
 
+def adventureTheDungeon(heroCurHealth):
+    heroCurAttackDamage = initialHeroAttackDamage
+    heroMaxHealth = heroCurHealth
 
-def monsterInRoom(monsterAttackDamage, monsterHealth):
-    global heroCurHealth
-    global heroCurAttackDamage
+    for isMonster, attackDamage, health in rooms:
+        if isMonster == 1:
+            heroCurHealth = fightWithMonster(attackDamage, health, heroCurAttackDamage, heroCurHealth)
+            if heroCurHealth <= 0:
+                return False
+        else:
+            heroCurAttackDamage, heroCurHealth = drinkPotion(attackDamage, health, heroCurAttackDamage, heroMaxHealth, heroCurHealth)
+    return True
 
+
+def fightWithMonster(monsterAttackDamage, monsterHealth, heroCurAttackDamage, heroCurHealth):
     turn = monsterHealth // heroCurAttackDamage
-    leftHealth = monsterHealth % heroCurAttackDamage
-    turn += 0 if leftHealth > 0 else -1
+    turn += 0 if monsterHealth % heroCurAttackDamage > 0 else -1
     heroCurHealth -= monsterAttackDamage * turn
 
-def whenHeroDie():
-    global heroMaxHealth
-    global heroCurHealth
-    global heroCurAttackDamage
-    global roomId
-
-    if heroCurHealth <= 0:
-        heroMaxHealth += -heroCurHealth + 1
-        heroCurHealth = heroMaxHealth
-        heroCurAttackDamage = initialHeroAttackDamage
-        roomIdx = -1
+    return heroCurHealth
 
 
-def potionInRoom(increaseAttackDamageAmount, health):
-    global heroMaxHealth
-    global heroCurHealth
-    global heroCurAttackDamage
-
-    heroCurAttackDamage += increaseAttackDamageAmount
+def drinkPotion(attackDamage, health, heroCurAttackDamage, heroMaxHealth, heroCurHealth):
+    heroCurAttackDamage += attackDamage
     heroCurHealth = heroCurHealth + health if heroCurHealth + health <= heroMaxHealth else heroMaxHealth
+
+    return heroCurAttackDamage, heroCurHealth
 
 
 numOfRooms, initialHeroAttackDamage = map(int, sys.stdin.readline().split())
 rooms = [list(map(int, sys.stdin.readline().split())) for i in range(numOfRooms)]
 
-heroMaxHealth = 0
-heroCurHealth = 0
-heroCurAttackDamage = initialHeroAttackDamage
-
-roomIdx = -1
-
-while roomIdx < numOfRooms:
-    roomIdx += 1
-    if roomIdx == numOfRooms:
+leftHeroHealth = 0
+rightHeroHealth = (10 ** 12) * numOfRooms
+while True:
+    curHeroHealth = (rightHeroHealth + leftHeroHealth) // 2
+    if curHeroHealth == leftHeroHealth:
         break
-    case, attackDamage, health = rooms[roomIdx]
 
-    if case == 1:
-        monsterInRoom(attackDamage, health)
-        whenHeroDie()
+    isClear = adventureTheDungeon(curHeroHealth)
+    if isClear:
+        rightHeroHealth = curHeroHealth
     else:
-        potionInRoom(attackDamage, health)
+        leftHeroHealth = curHeroHealth
 
-print(heroMaxHealth)
+print(int(rightHeroHealth))
