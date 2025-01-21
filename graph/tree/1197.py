@@ -1,32 +1,36 @@
 import sys
+import heapq
 
-def find(parent, x):
-    if parent[x] != x:
-        parent[x] = find(parent, parent[x])
-    return parent[x]
+def solution(numOfVertexes, numOfEdges, infoOfEdges):
+    graph = build_graph(infoOfEdges, numOfVertexes)
 
-def union(parent, x, y):
-    x_root = find(parent, x)
-    y_root = find(parent, y)
+    min_heap = [(0, 0)]
+    visited = [False] * numOfVertexes
 
-    if x_root == y_root:
-        return
+    weigths = 0
+    while min_heap:
+        current_weight, current_vertex = heapq.heappop(min_heap)
+        if not visited[current_vertex]:
+            weigths += current_weight
+            visited[current_vertex] = True
+            for adjusted_weight, adjusted_vertex in graph[current_vertex]:
+                    heapq.heappush(min_heap, (adjusted_weight, adjusted_vertex))
 
-    if x_root < y_root:
-        parent[y_root] = x_root
-    else:
-        parent[x_root] = y_root
+    return weigths
 
-V, E = map(int, sys.stdin.readline().split())
-edges = [tuple(map(int, sys.stdin.readline().split())) for i in range(E)]
 
-edges.sort(key=lambda x:x[2])
-parent = [i for i in range(V+1)]
-result = 0
+def build_graph(infoOfEdges, numOfVertexes):
+    graph = [[] for i in range(numOfVertexes)]
 
-for start, end, weight in edges:
-    if find(parent, start) != find(parent, end):
-        union(parent, start, end)
-        result += weight
+    for start, end, weight in infoOfEdges:
+        graph[start - 1].append((weight, end - 1))
+        graph[end - 1].append((weight, start - 1))
 
+    return graph
+
+
+numOfVertexes, numOfEdges = map(int, sys.stdin.readline().split())
+infoOfEdges = [list(map(int, sys.stdin.readline().split())) for i in range(numOfEdges)]
+
+result = solution(numOfVertexes, numOfEdges, infoOfEdges)
 print(result)
