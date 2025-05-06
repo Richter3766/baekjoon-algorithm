@@ -35,3 +35,25 @@ def solution(need_string, num_brand, brand_info):
 answer = solution(need_string, num_brand, brand_info)
 print(answer)
 
+
+def solution_alternative(need_string, num_brand, brand_info):
+    """문제를 푸는 어쩌면 더 나은 방식"""
+    # 가장 싼 세트 가격과 낱개 가격 찾기
+    cheapest_package = min(brand[0] for brand in brand_info)
+    cheapest_single = min(brand[1] for brand in brand_info)
+
+    # 세 가지 주요 전략 비용 계산
+    # 1. 전부 낱개로 사는 경우
+    cost_all_singles = need_string * cheapest_single
+
+    # 2. 필요한 개수를 채우기 위해 전부 세트로 사는 경우 (올림 계산)
+    cost_all_sets = ((need_string + 5) // 6) * cheapest_package # (N + 5) // 6 는 ceil(N/6) 계산 트릭
+
+    # 3. 세트 살 만큼 사고 나머지는 낱개로 사는 경우 (몫, 나머지 계산)
+    set_num = need_string // 6
+    left_num = need_string % 6
+    cost_sets_and_singles = set_num * cheapest_package + left_num * cheapest_single
+
+    # 이 세 가지 경우 중 최솟값 반환
+    return min(cost_all_singles, cost_all_sets, cost_sets_and_singles)
+
